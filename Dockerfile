@@ -5,13 +5,19 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the Maven project files
+COPY pom.xml .
+
+# Install Maven and dependencies
+RUN apt-get update && apt-get install -y maven
+
+# Copy the full project into the container
 COPY . .
 
-# Install Maven and build the project
-RUN apt-get update && apt-get install -y maven && mvn clean package
+# Build the project
+RUN mvn clean package
 
 # Copy the built JAR to the container
-COPY target/NovaMobile.jar /app/NovaMobile.jar
+COPY target/*.jar /app/NovaMobile.jar
 
 # Expose the port the app runs on
 EXPOSE 8080
