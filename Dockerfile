@@ -16,11 +16,8 @@ COPY . .
 # Build the project
 RUN mvn clean package
 
-# Copy the built JAR to the container
-COPY target/*.jar /app/NovaMobile.jar
-
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Define the command to run the app
-CMD ["java", "-jar", "/app/NovaMobile.jar"]
+# Define the command to run the app directly from the build location
+CMD ["java", "-jar", "/app/target/ChatApplication-1.0-SNAPSHOT.jar"]
