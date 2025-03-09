@@ -21,26 +21,49 @@ import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-public class MainTab {
-    public static void main(String[] args) {
-            if (GraphicsEnvironment.isHeadless()) {
-        System.out.println("Running in headless mode — skipping GUI.");
-        return; // Exit if running in headless mode (like on Render)
-    }
-        
-        SwingUtilities.invokeLater(() -> {
-            if (!attemptAutoLogin()) {  // If auto-login fails, show Welcome Screen
-                showWelcomeScreen();
-            }
-        });
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:chatting_app.db");
-             Statement stmt = conn.createStatement()) {
-            stmt.execute("PRAGMA journal_mode=WAL;");
-        } catch (SQLException e) {
+public class MainTab {
+public static void main(String[] args) {
+    if (GraphicsEnvironment.isHeadless()) {
+        System.out.println("Running in headless mode — skipping GUI.");
+        
+        // Start a simple HTTP server to keep the app alive on Render
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+            server.createContext("/", exchange -> {
+                String response = "NovaMobile is running!";
+                exchange.sendResponseHeaders(200, response.length());
+                OutputStream os = exchange.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+            });
+            server.start();
+            System.out.println("Server started on port 8080");
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        return;
     }
+
+    SwingUtilities.invokeLater(() -> {
+        if (!attemptAutoLogin()) {  // If auto-login fails, show Welcome Screen
+            showWelcomeScreen();
+        }
+    });
+
+    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:chatting_app.db");
+         Statement stmt = conn.createStatement()) {
+        stmt.execute("PRAGMA journal_mode=WAL;");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 
     // Auto-login method (returns true if login succeeds)
     private static boolean attemptAutoLogin() {
