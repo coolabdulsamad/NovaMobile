@@ -34,15 +34,26 @@ public static void main(String[] args) {
         // Start a simple HTTP server to keep the app alive on Render
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-            server.createContext("/", exchange -> {
-                String response = "NovaMobile is running!";
-                exchange.sendResponseHeaders(200, response.length());
-                OutputStream os = exchange.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-            });
-            server.start();
-            System.out.println("Server started on port 8080");
+server.createContext("/", exchange -> {
+    String response = "NovaMobile is running!";
+    
+    // Handle GET request
+    if ("GET".equals(exchange.getRequestMethod())) {
+        exchange.sendResponseHeaders(200, response.length());
+        OutputStream os = exchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+    } 
+    
+    // Handle HEAD request (no body)
+    else if ("HEAD".equals(exchange.getRequestMethod())) {
+        exchange.sendResponseHeaders(200, -1);
+    }
+});
+server.start();
+
+System.out.println("Server started on port 8080");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
