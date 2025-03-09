@@ -7,6 +7,7 @@ package com.mycompany.chatapplication;
 import Application_Connector.db.DatabaseHelper;
 import MainStart_Test.TypingEffectDemo;
 import java.awt.Color;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.net.URL;
@@ -18,11 +19,15 @@ import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class MainTab {
     public static void main(String[] args) {
+            if (GraphicsEnvironment.isHeadless()) {
+        System.out.println("Running in headless mode — skipping GUI.");
+        return; // Exit if running in headless mode (like on Render)
+    }
+        
         SwingUtilities.invokeLater(() -> {
             if (!attemptAutoLogin()) {  // If auto-login fails, show Welcome Screen
                 showWelcomeScreen();
